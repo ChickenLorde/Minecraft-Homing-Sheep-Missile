@@ -1,0 +1,11 @@
+name: Destruction
+version: '1.0'
+main: me.oakyplugin.destruction.Main
+api-version: '1.21'
+description: Destructive Fun
+
+commands:
+  getcitem:
+
+  getTrackerCount:
+
