@@ -167,7 +167,7 @@ public class HomingSheepEntity  extends EntityTracker {
             Vector velocityDirection = velocity.clone().normalize();
             double speed = velocity.lengthSquared();
 
-            double tuning = 1.15;
+            double tuning = 0.9;
             Vector lookAhead = velocityDirection.multiply(speed).multiply(1.0 / (2.0 * accelerationMagnitude)).multiply(tuning);
             checkPos = checkPos.add(lookAhead);
 
@@ -342,17 +342,25 @@ public class HomingSheepEntity  extends EntityTracker {
 
             }
 
-            double alignmentScore = Math.max(0.1,vectorN.dot(idealVectorN));
-            double clearanceScore = Math.min(1.0, vectors.get(vector) / maxDistance);
-            double collisionScore = Math.min(1.0, Math.max(0.001,vectorLength / maxDistance));
+            double alignmentScore = vectorN.dot(idealVectorN);
+            double clearanceScore = Math.min(1.0, vectorLength / maxDistance);
+            //double collisionScore = Math.min(1.0, Math.max(0.001,vectorLength / maxDistance));
 
-            if(checkPos.distance(target.getLocation().toVector()) <= vectorLength + 0.2)
+            /*if(checkPos.distance(target.getLocation().toVector()) <= vectorLength + 0.2)
             {
-                collisionScore = clearanceScore = 1;
+                clearanceScore = 1;
                 //Bukkit.getServer().broadcast(Component.text("Locked on"));
-            }
+            }*/
 
-            double score = Math.max(0,alignmentScore * Math.pow(clearanceScore * collisionScore, 2.5));
+            //double score = Math.max(0,alignmentScore * Math.pow(clearanceScore * collisionScore, 2.5));
+            double score = alignmentScore + 3 * (2 * clearanceScore - (clearanceScore * clearanceScore));
+
+            if(velocity.lengthSquared() > 0.01) {
+                double consistency = vectorN.dot(velocity.clone().normalize());
+                double backtrackPenalty = (1 - consistency) * 0.5;
+
+                score -= backtrackPenalty * 0.5;
+            }
 
             if(score > bestScore)
             {
